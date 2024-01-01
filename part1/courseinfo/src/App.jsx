@@ -1,3 +1,20 @@
+import { useState } from 'react';
+import styles from './styles.module.css';
+
+
+const Button = () => {
+  const [first, setFirst] = useState(0)
+  return (
+    <>
+      <button
+        className={styles.button}
+        onClick={() => setFirst(first + 1)}
+      >
+        Happy Coding! {first}
+      </button>
+    </>
+  )
+}
 
 const Header = (props) => {
   return (
@@ -47,6 +64,8 @@ const App = () => {
     ]
   }
 
+
+
   return (
     <div>
       <Header course={course} />
@@ -54,6 +73,7 @@ const App = () => {
         course={course} />
       <Total
         course={course} />
+      <Button> </Button>
     </div>
   )
 }
