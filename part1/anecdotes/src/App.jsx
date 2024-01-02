@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from 'react'
 
 const App = () => {
   const anecdotes = [
@@ -10,47 +10,40 @@ const App = () => {
     'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.',
     'Programming without an extremely heavy use of console.log is same as if a doctor would refuse to use x-rays or blood tests when diagnosing patients.',
     'The only way to go fast, is to go well.'
-  ];
+  ]
 
-  const [selected, setSelected] = useState(0);
-  const [votes, setVotes] = useState(Array(anecdotes.length).fill(0));
-  console.log(votes);
+  const [selected, setSelected] = useState(0)
+  const [votes, setVotes] = useState(Array(anecdotes.length).fill(0))
 
-  const handleClick = () => {
-    const copyVotes = [...votes];
-    copyVotes[selected] += 1;
-    setVotes(copyVotes);
-  };
+  const maxVotes = Math.max(...votes)
+  const anecdoteMaxVotes = anecdotes[votes.indexOf(maxVotes)]
 
-  const randomNumber = () => {
+  console.log(votes)
+  console.log(maxVotes)
+  console.log(anecdoteMaxVotes);
+
+  function randomNumber() {
     return Math.floor(Math.random() * anecdotes.length);
-  };
+  }
 
-  const maxVotes = Math.max(...votes);
-  const mostVotedAnecdote = anecdotes[votes.indexOf(maxVotes)];
+  function handleClick() {
+    const copy = [...votes]
+    copy[selected] += 1
+    setVotes(copy)
+  }
 
   return (
     <div>
       <h1>Anecdote of the Day</h1>
       <p>{anecdotes[selected]}</p>
       <p>has {votes[selected]} votes</p>
-      <div>
-        <button onClick={handleClick}>Vote</button>
-        <button onClick={() => setSelected(randomNumber())}>Next Anecdote</button>
-      </div>
-      <div>
-        <h2>Anecdote with most votes</h2>
-        {maxVotes === 0 ? (
-          <p>No votes yet</p>
-        ) : (
-          <div>
-            <p>{mostVotedAnecdote}</p>
-            <p>has {maxVotes} votes</p>
-          </div>
-        )}
-      </div>
+      <button onClick={handleClick}>votes</button>
+      <button onClick={() => { setSelected(randomNumber()) }}>next anecdote</button>
+      <h2>Anecdote with most votes</h2>
+      <p>{anecdoteMaxVotes}</p>
+      <p>{maxVotes} VOTES!</p>
     </div>
-  );
-};
+  )
+}
 
-export default App;
+export default App
