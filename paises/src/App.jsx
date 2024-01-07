@@ -1,64 +1,104 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const App = () => {
-  const [name, setName] = useState("");
-  const [countries, setCountries] = useState([]);
-
-  const handleChangeName = (event) => {
-    setName(event.target.value);
-  };
+  const [country, setCountry] = useState('');
+  const [allCountry, setAllCountry] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [weather, setWeather] = useState(null);
 
   useEffect(() => {
-    axios.get("https://restcountries.com/v3.1/all")
+    axios.get('https://restcountries.com/v3.1/all')
       .then(response => {
-        setCountries(response.data);
+        setAllCountry(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching countries:', error);
       });
   }, []);
 
-  const filtered = name ? countries.filter(element =>
-    element.name.common.toLowerCase().includes(name.toLowerCase())
-  ) : countries;
+  useEffect(() => {
+    console.log("changin");
+    if (selectedCountry) {
+      axios.get(`http://localhost:3001/${selectedCountry.name.common}`)
+        .then(response => {
+          setWeather(response.data[0]);
+        });
+    } else if (country) {
+      const filteredCountry = allCountry.find(
+        (element) => element.name.common.toLowerCase() === country.toLowerCase()
+      );
+      if (filteredCountry) {
+        axios.get(`http://localhost:3001/${filteredCountry.name.common}`)
+          .then(response => {
+            setWeather(response.data[0]);
+          });
+      }
+    }
+  }, [selectedCountry, country, allCountry]);
 
-  const showCountryDetails = (element) => {
-    // Aquí actualizamos el estado "name" para mostrar los detalles del país
-    setName(element.name.common);
-  };
+  function renderCountry(countryData, weatherData) {
+    return (
+      <div>
+        <h1>{countryData.name.common}</h1>
+        <p>capital {countryData.capital}</p>
+        <p>population {countryData.population}</p>
+        <h2>languages</h2>
+        <ul>
+          {Object.values(countryData.languages).map((element, index) => (
+            <li key={index}>{element}</li>
+          ))}
+        </ul>
+        <img src={countryData.flags.png} alt="" />
+        <div>
+          <p>Weather</p>
+          {weatherData && (
+            <div>
+              <p>Temperature: {weatherData.temperature}</p>
+              <p>ID: {weatherData.id}</p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  function renderListCountry(countryList) {
+    return (
+      countryList.map((element) => (
+        <div key={element.name.common}>
+          <p>{element.name.common}</p>
+          <button onClick={() => setSelectedCountry(element)}>show</button>
+        </div>
+      ))
+    );
+  }
+
+  const filtered = country ? allCountry.filter((element) => element.name.common.toLowerCase().includes(country.toLowerCase())) : allCountry;
 
   return (
     <div>
-      find countries <input type="text" value={name} onChange={handleChangeName} />
-      {filtered.length === 1 ? (
-        <div>
-          <h1>{filtered[0].name.common}</h1>
-          <p>capital {filtered[0].capital}</p>
-          <p>population {filtered[0].population}</p>
-          <h2>languages</h2>
-          <ul>
-            {filtered[0].languages && (
-              <ul>
-                {Object.values(filtered[0].languages).map((element, index) => (
-                  <li key={index}>{element}</li>
-                ))}
-              </ul>
-            )}
-          </ul>
-          <img src={filtered[0].flags.png} alt="" />
-        </div>
-      ) : (
-        filtered.length > 10 ? (
-          <p>Too many matches, specify another filter</p>
-        ) : (
-          <div>
-            {filtered.map((element) => (
-              <div key={element.name.common}>
-                <p>{element.name.common}</p>
-                <button onClick={() => showCountryDetails(element)}>SHOW</button>
-              </div>
-            ))}
-          </div>
-        )
-      )}
+      <div>
+        find country <input type="text" value={country} onChange={(event) => setCountry(event.target.value)} />
+        {
+          (filtered.length === 1) ? (
+            <>
+              {
+                renderCountry(filtered[0], weather)
+              }
+            </>
+          ) : (
+            (filtered.length < 10) ? (
+              renderListCountry(filtered)
+            ) : (
+              <p>Too many countries</p>
+            )
+          )
+        }
+      </div>
+      <div>
+        {selectedCountry && renderCountry(selectedCountry, weather)}
+      </div>
     </div>
   );
 };
