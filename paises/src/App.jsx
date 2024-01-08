@@ -31,6 +31,7 @@ const App = () => {
       if (filteredCountry) {
         axios.get(`http://localhost:3001/${filteredCountry.name.common}`)
           .then(response => {
+            console.log(response)
             setWeather(response.data[0]);
           });
       }
