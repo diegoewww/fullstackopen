@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Filter from './components/Filter';
 import PersonForm from './components/PersonForm';
 import Persons from './components/Persons';
+import Message from './components/Message';
 
 import telefonoServices from './services/telefono'
 
@@ -10,6 +11,7 @@ const App = () => {
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
   const [newFilter, setNewFilter] = useState('');
+  const [message, setMessage] = useState({ type: null, text: null });
 
   useEffect(() => {
     telefonoServices.getAll()
@@ -43,18 +45,22 @@ const App = () => {
 
     const foundDuplicate = persons.find((person) => person.name === newName);
 
-
     if (foundDuplicate) {
       const confirmMessage = `${foundDuplicate.name} is already added to phonebook, replace the old number with a new one?`;
       const shouldReplace = window.confirm(confirmMessage);
       if (shouldReplace) {
         telefonoServices.updateUser(foundDuplicate.id, newPerson)
           .then(dataUpdated => {
-            setPersons(persons.map(element => element.id !== foundDuplicate.id ? element : dataUpdated))
+            setPersons(persons.map(element => element.id !== foundDuplicate.id ? element : dataUpdated));
+            setMessage({ type: 'success', text: `Number updated for ${foundDuplicate.name}` });
           })
           .catch(error => {
-            console.log(error)
-          })
+            setMessage({ type: 'error', text: `Error updating number for ${foundDuplicate.name}` });
+            setPersons(prevPersons => prevPersons.map(element =>
+              element.id !== foundDuplicate.id ? element : null
+            ).filter(Boolean));
+            console.log(error);
+          });
       }
     } else {
       telefonoServices.createUser(newPerson)
@@ -62,10 +68,17 @@ const App = () => {
           setPersons(persons.concat(newData));
           setNewName('');
           setNewNumber('');
+          setMessage({ type: 'success', text: `Added ${newPerson.name}` });
+          setTimeout(() => {
+            setMessage({ type: null, text: null });
+          }, 3000);
         })
-        .catch(error => {
-          console.log(error)
-        })
+        .catch(() => {
+          setMessage({ type: 'error', text: 'Error adding new person' });
+          setTimeout(() => {
+            setMessage({ type: null, text: null });
+          }, 3000);
+        });
     }
   };
 
@@ -94,6 +107,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Message messageType={message.type} messageText={message.text} />
       <Filter
         handleChangeFilter={handleFilterChange}
         newFilter={newFilter}
