@@ -53,9 +53,15 @@ const App = () => {
           .then(dataUpdated => {
             setPersons(persons.map(element => element.id !== foundDuplicate.id ? element : dataUpdated));
             setMessage({ type: 'success', text: `Number updated for ${foundDuplicate.name}` });
+            setTimeout(() => {
+              setMessage({ type: null, text: null });
+            }, 3000);
           })
           .catch(error => {
             setMessage({ type: 'error', text: `Error updating number for ${foundDuplicate.name}` });
+            setTimeout(() => {
+              setMessage({ type: null, text: null });
+            }, 3000);
             setPersons(prevPersons => prevPersons.map(element =>
               element.id !== foundDuplicate.id ? element : null
             ).filter(Boolean));
