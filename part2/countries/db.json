@@ -1,0 +1,23 @@
+{
+  "Peru": [
+    {
+      "name": "Peru",
+      "temperature": "34",
+      "id": 1
+    }
+  ],
+  "Chile": [
+    {
+      "name": "Chile",
+      "temperature": "20",
+      "id": 2
+    }
+  ],
+  "Argentina": [
+    {
+      "name": "Argentina",
+      "temperature": "40",
+      "id": 3
+    }
+  ]
+}
